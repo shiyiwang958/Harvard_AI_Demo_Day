@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One-Step Generation</title>
+<meta name="description" content="Scalable Beckmann Maps (SBM): one-step image generation. Presented by Shiyi Wang, Harvard University.">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --ink: #141413;
+    --ink-2: #4a4945;
+    --ink-3: #75736e;
+    --rule: #e4e1da;
+    --accent: #a51c30;
+    --accent-ink: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413;
+      --surface: #1d1c1a;
+      --ink: #f2f0ea;
+      --ink-2: #c9c6be;
+      --ink-3: #9d9a92;
+      --rule: #34322e;
+      --accent: #e0566a;
+      --accent-ink: #141413;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413;
+    --surface: #1d1c1a;
+    --ink: #f2f0ea;
+    --ink-2: #c9c6be;
+    --ink-3: #9d9a92;
+    --rule: #34322e;
+    --accent: #e0566a;
+    --accent-ink: #141413;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .prose { max-width: 760px; margin: 0 auto; }
+
+  header { padding: 72px 0 40px; text-align: center; }
+  h1 {
+    margin: 0 0 32px;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: clamp(40px, 7vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+  .presenter {
+    display: inline-grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 18px;
+    margin: 0;
+    text-align: left;
+    font-size: 16px;
+  }
+  .presenter dt {
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 3px;
+  }
+  .presenter dd { margin: 0; color: var(--ink); }
+  .presenter .name { font-weight: 600; }
+  .presenter a { color: var(--ink); text-decoration-color: var(--rule); text-underline-offset: 3px; }
+  .presenter a:hover { text-decoration-color: var(--accent); }
+  .presenter ul { list-style: none; margin: 0; padding: 0; }
+  .presenter li { color: var(--ink-2); }
+  .presenter li + li { margin-top: 2px; }
+
+  figure { margin: 8px 0 0; }
+  .figcard {
+    display: block;
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: clamp(10px, 2vw, 22px);
+  }
+  .figcard img { display: block; width: 100%; height: auto; }
+  figcaption {
+    max-width: 760px;
+    margin: 14px auto 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  figcaption strong { color: var(--ink); }
+
+  section { padding: 56px 0 0; }
+  h2 {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .abstract p { margin: 0; text-align: justify; hyphens: auto; color: var(--ink); }
+
+  .cta {
+    margin: 56px auto 0;
+    padding: 28px 0 0;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+  .cta p { margin: 0 0 16px; color: var(--ink-2); }
+  .button {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .button:hover { filter: brightness(1.08); }
+  .button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .url { display: block; margin-top: 12px; font-size: 14px; color: var(--ink-3); word-break: break-all; }
+  .url a { color: inherit; }
+
+  footer { padding: 56px 0 48px; }
+
+  @media (max-width: 600px) {
+    body { font-size: 16px; }
+    .wrap { padding: 0 16px; }
+    header { padding: 48px 0 28px; }
+    .presenter { grid-template-columns: 1fr; gap: 2px; }
+    .presenter dt { padding-top: 10px; }
+    .abstract p { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <header>
+    <h1>One-Step Generation</h1>
+    <dl class="presenter">
+      <dt>Presenter</dt>
+      <dd class="name">Shiyi Wang</dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:fwang@math.harvard.edu">fwang@math.harvard.edu</a></dd>
+      <dt>Affiliation</dt>
+      <dd>
+        <ul>
+          <li>Kempner Graduate Fellow</li>
+          <li>Junior Investigator, AI Institute for Artificial Intelligence and Fundamental Interactions</li>
+          <li>PhD Candidate in Mathematics, Harvard University</li>
+        </ul>
+      </dd>
+    </dl>
+  </header>
+
+  <figure>
+    <a class="figcard" href="assets/fig1_teaser_sbm.png" title="Open full resolution">
+      <img src="assets/fig1_teaser_sbm.jpg" width="2700" height="1464"
+           alt="Sixteen text-to-image prompts, each shown twice: above, MiniT2I-L/16 using 200 network evaluations; below, SBM using one network evaluation.">
+    </a>
+    <figcaption>
+      <strong>Text to image, same prompts.</strong> In each pair of rows, the top row is MiniT2I-L/16, a flow model that
+      needs 200 network evaluations (NFE) per image; the bottom row is SBM with a single network evaluation.
+      One draw per prompt for both models; only the prompts were chosen.
+    </figcaption>
+  </figure>
+
+  <section class="abstract prose" aria-labelledby="abstract-h">
+    <h2 id="abstract-h">Abstract</h2>
+    <p>Beckmann Transport Models (BTM) learn one-step generative maps end-to-end from data, without a teacher, a
+    distillation stage, or pretrained features. We introduce Scalable Beckmann Maps (SBM), which bring to BTM the two
+    ingredients behind the quality of modern multistep generators: classifier-free guidance (CFG) and a training recipe
+    that scales, while keeping sampling at a single network evaluation. CFG combines conditional and unconditional
+    velocity or score predictions, which a Beckmann map does not have. Our guidance rests on one observation: the BTM
+    current is a positive multiple of an autonomous denoising field, to which CFG applies as it does to a velocity. With
+    exact denoisers this gives guided BTM. In practice we substitute the map&rsquo;s own conditional and null predictions
+    for the denoisers, which requires no additional network and introduces a bias that we characterize. We show that the
+    guided update is consistent with a guided conservation equation, and that guidance can move the boundaries between
+    basins, sending more noise to the modes a condition favors. Trained from scratch in the latent of a representation
+    autoencoder, SBM reaches a one-step FID of 1.6 on ImageNet 256&times;256 without a teacher or a feature loss, and a
+    GenEval score of 0.86 in text-to-image generation with one network evaluation. As a world model, where we train
+    without guidance, the recipe alone outperforms DriftWorld on all five metrics of two robot-manipulation benchmarks,
+    with 1.9&ndash;2.8&times; less training compute and no pretrained auxiliary feature encoder.</p>
+  </section>
+
+  <section class="cta prose">
+    <p>For further details and demonstrations, visit the project page.</p>
+    <a class="button" href="https://tullebulle.github.io/projects/sbm/">Visit the project page &rarr;</a>
+    <span class="url"><a href="https://tullebulle.github.io/projects/sbm/">tullebulle.github.io/projects/sbm</a></span>
+  </section>
+
+  <footer></footer>
+</main>
+</body>
+</html>
